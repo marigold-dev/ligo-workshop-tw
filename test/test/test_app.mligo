@@ -28,8 +28,8 @@ let interest_rate (contract : (App.action, App.storage) originated) (rate : nat)
 (** test case *)
 let case_set_interest_rate_test =
   Breath.Model.case
-    "test borrow entrypoint"
-    "success to borrow"
+  "test interest rate entrypoint"
+  "success to set new interest rate"
     (fun (level: Breath.Logger.level) ->
       let (_baker, (alice, _bob, _carol)) = Breath.Context.init_default () in
 
