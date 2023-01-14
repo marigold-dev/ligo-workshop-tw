@@ -42,9 +42,9 @@ let repay
   : output =
   let loan_opt = Big_map.find_opt (Tezos.get_sender ()) store.borrowers in
   let loan = Option.unopt loan_opt in
-  let () = assert_with_error (Tezos.get_amount () > loan) "not enough to repay" in
+  let () = assert_with_error (Tezos.get_amount () > loan + store.interest_rate * 1tz) "not enough to repay" in
   let admin_contract = Tezos.get_contract_with_error store.admin "doesn't exist" in
-  let op = Tezos.transaction () 0tez admin_contract in
+  let op = Tezos.transaction (Tezos.get_amount ()) 0tez admin_contract in
   [op], store
 
 let interest_rate
