@@ -21,18 +21,21 @@ let default (store : storage) : output =
   let () = assert_with_error (Tezos.get_amount () >= 5tez) "The minimal amount should be 5tez" in
   [], store
 
+type proposal_content = Multisig.Types.proposal_content
+
+
 let borrow
   (loan_amount, borrower : tez * address)
   (store : storage)
   : output =
-  let () = assert_with_error (Big_map.mem borrower store.borrowers) "Can't borrow twice" in
+  let () = assert_with_error (not (Big_map.mem borrower store.borrowers)) "Can't borrow twice" in
   let create_proposal_entrypoint_opt =
-    Tezos.get_entrypoint_opt
+    (Tezos.get_entrypoint_opt
       "%create_proposal"
-      store.admin
+      store.admin : (((unit proposal_content) list) contract) option)
   in
   let create_proposal_entrypoint = Option.unopt create_proposal_entrypoint_opt in
-  let tx = { target = borrower; parameter = (); amount = loan_amount } in
+  let tx = [Transfer { target = borrower; parameter = (); amount = loan_amount }] in
   let op = Tezos.transaction tx 0tez create_proposal_entrypoint in
   let new_store = { store with borrowers = (Big_map.add borrower loan_amount store.borrowers) }in
   [op], new_store
