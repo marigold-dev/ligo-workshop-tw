@@ -1,6 +1,7 @@
 .PHONY: build test ligo-version
 .PHONY: clean tarball-app
 .PHONY: install get-tezos-binary gen_wallet deploy
+.PHONY: borrow show_contract
 
 # Environment variables
 
@@ -65,8 +66,15 @@ gen-wallet:
 	@echo -e "\e[32m!!! Please go https://faucet.marigold.dev/ or https://faucet.ghostnet.teztnets.xyz/ to request some XTZ !!!\e[0m"
 
 deploy:
-	$(BUILD_DIRECTORY)/octez-client --endpoint https://ghostnet.tezos.marigold.dev originate contract $(PROJECT_NAME) transferring 10 from wallet_address running $(BUILT_APP_DIRECTORY)/$(PROJECT_NAME).tez --init '"init_storage"' --burn-cap 1 -f
+	$(BUILD_DIRECTORY)/octez-client --endpoint https://ghostnet.tezos.marigold.dev originate contract $(PROJECT_NAME) transferring 10 from wallet_address running $(BUILT_APP_DIRECTORY)/$(PROJECT_NAME).tez --init 'Pair (Pair "KT1SkehrJkQaX1emyagMmtoPhpxPXfZ4agDQ" {}) 2' --burn-cap 1 -f
 
 get-tezos-binary:
 	wget -O $(BUILD_DIRECTORY)/octez-client $(TEZOS_BINARIES_URL)/octez-client
 	chmod +x $(BUILD_DIRECTORY)/octez-client
+
+borrow:
+	$(BUILD_DIRECTORY)/octez-client --endpoint https://ghostnet.tezos.marigold.dev transfer 0 from wallet_address to $(PROJECT_NAME) --entrypoint borrow --arg 'Pair 3 "tz1inzFwAjE4oWXMabJFZdPHoDQN5S4XB3wH"' --burn-cap 1
+
+
+show_contract:
+	$(BUILD_DIRECTORY)/octez-client --endpoint https://ghostnet.tezos.marigold.dev list known contracts 2> /dev/null | grep $(PROJECT_NAME)
